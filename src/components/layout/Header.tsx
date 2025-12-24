@@ -1,13 +1,38 @@
 import { Search, ShoppingCart, User, Heart, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useRef } from "react";
 import { useWishlistContext } from "@/contexts/WishlistContext";
 
 const Header = () => {
   const [cartCount] = useState(3);
   const { wishlistCount } = useWishlistContext();
+  const navigate = useNavigate();
+  const clickCountRef = useRef(0);
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    clickCountRef.current += 1;
+
+    if (clickTimeoutRef.current) {
+      clearTimeout(clickTimeoutRef.current);
+    }
+
+    if (clickCountRef.current >= 10) {
+      clickCountRef.current = 0;
+      navigate("/admin");
+      return;
+    }
+
+    clickTimeoutRef.current = setTimeout(() => {
+      if (clickCountRef.current < 10) {
+        navigate("/");
+      }
+      clickCountRef.current = 0;
+    }, 500);
+  };
   
   const navLinks = [
     { name: "Smartphones", href: "/products?category=smartphones" },
@@ -23,9 +48,9 @@ const Header = () => {
         {/* Top Row */}
         <div className="flex items-center justify-between gap-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
+          <button onClick={handleLogoClick} className="flex items-center gap-2">
             <span className="text-2xl font-bold text-foreground tracking-tight">AMERA</span>
-          </Link>
+          </button>
 
           {/* Search Bar */}
           <div className="hidden md:flex flex-1 max-w-xl mx-8">
