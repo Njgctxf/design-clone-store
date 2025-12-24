@@ -174,10 +174,12 @@ const Cart = () => {
                   </div>
                 </div>
 
-                <Button variant="coral" size="xl" className="w-full">
-                  Passer la commande
-                  <ArrowRight className="h-5 w-5 ml-2" />
-                </Button>
+                <Link to="/checkout">
+                  <Button variant="coral" size="xl" className="w-full">
+                    Passer la commande
+                    <ArrowRight className="h-5 w-5 ml-2" />
+                  </Button>
+                </Link>
 
                 <p className="text-xs text-muted-foreground text-center mt-4">
                   Paiement sécurisé • Livraison sous 3-5 jours
