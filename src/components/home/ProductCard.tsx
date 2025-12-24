@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useWishlistContext } from "@/contexts/WishlistContext";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   id: string;
@@ -26,12 +28,31 @@ const ProductCard = ({
   badge,
   badgeColor = "coral",
 }: ProductCardProps) => {
+  const { isInWishlist, toggleWishlist } = useWishlistContext();
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+  const inWishlist = isInWishlist(id);
   
   const badgeStyles = {
     coral: "bg-coral text-primary-foreground",
     mint: "bg-mint text-mint-dark",
     peach: "bg-peach text-primary-foreground",
+  };
+
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist({ id, name, price, originalPrice, image, rating, reviews });
+    if (inWishlist) {
+      toast.success(`${name} retiré des favoris`);
+    } else {
+      toast.success(`${name} ajouté aux favoris`);
+    }
+  };
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toast.success(`${name} ajouté au panier`);
   };
 
   return (
@@ -50,14 +71,19 @@ const ProductCard = ({
         </Link>
         
         {/* Quick Actions */}
-        <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full shadow-md">
-            <Heart className="h-4 w-4" />
+        <div className="absolute top-2 right-2 flex flex-col gap-2">
+          <Button 
+            variant="secondary" 
+            size="icon" 
+            className={`h-8 w-8 rounded-full shadow-md transition-all ${inWishlist ? "bg-coral-light" : "opacity-0 group-hover:opacity-100"}`}
+            onClick={handleWishlistToggle}
+          >
+            <Heart className={`h-4 w-4 ${inWishlist ? "fill-coral text-coral" : ""}`} />
           </Button>
         </div>
         
         <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Button variant="coral" size="sm" className="w-full">
+          <Button variant="coral" size="sm" className="w-full" onClick={handleAddToCart}>
             <ShoppingCart className="h-4 w-4 mr-2" />
             Ajouter
           </Button>
