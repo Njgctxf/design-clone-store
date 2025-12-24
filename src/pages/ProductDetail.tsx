@@ -6,6 +6,8 @@ import { useParams, Link } from "react-router-dom";
 import { Heart, ShoppingCart, Star, Truck, Shield, RotateCcw, Minus, Plus, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import ProductCard from "@/components/home/ProductCard";
+import { useWishlistContext } from "@/contexts/WishlistContext";
+import { toast } from "sonner";
 
 const productData: Record<string, {
   id: string;
@@ -60,9 +62,28 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedStorage, setSelectedStorage] = useState(0);
+  const { isInWishlist, toggleWishlist } = useWishlistContext();
 
   const product = productData[id || "2"] || productData["2"];
   const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+  const inWishlist = isInWishlist(product.id);
+
+  const handleWishlistToggle = () => {
+    toggleWishlist({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      image: product.image,
+      rating: product.rating,
+      reviews: product.reviews,
+    });
+    if (inWishlist) {
+      toast.success(`${product.name} retiré des favoris`);
+    } else {
+      toast.success(`${product.name} ajouté aux favoris`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -180,8 +201,13 @@ const ProductDetail = () => {
                   <ShoppingCart className="h-5 w-5 mr-2" />
                   Ajouter au panier
                 </Button>
-                <Button variant="outline" size="xl">
-                  <Heart className="h-5 w-5" />
+                <Button 
+                  variant="outline" 
+                  size="xl" 
+                  onClick={handleWishlistToggle}
+                  className={inWishlist ? "border-coral bg-coral-light" : ""}
+                >
+                  <Heart className={`h-5 w-5 ${inWishlist ? "fill-coral text-coral" : ""}`} />
                 </Button>
               </div>
 
